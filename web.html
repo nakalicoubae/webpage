@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>옥센 - 운동시설 관리</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        form, table {
+            margin: 20px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+    </style>
+    <script>
+        let startTime, endTime, timerInterval;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            showSection('home');
+
+            document.getElementById('loginForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                showSection('checklist');
+            });
+
+            document.getElementById('registerForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                showSection('login');
+            });
+
+            document.getElementById('checklistForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                showSection('timer');
+                startTime = new Date();
+                endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+                document.getElementById('startTime').textContent = formatTime(startTime);
+                document.getElementById('endTime').textContent = formatTime(endTime);
+
+                timerInterval = setInterval(updateTime, 1000);
+                setTimeout(() => {
+                    document.getElementById('extendButton').disabled = false;
+                }, 50 * 60 * 1000); // 50분 후에 연장 버튼 활성화
+            });
+
+            if (window.location.hash) {
+                showSection(window.location.hash.substring(1));
+            }
+        });
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function updateTime() {
+            const currentTime = new Date();
+            if (currentTime >= endTime) {
+                clearInterval(timerInterval);
+                showSection('summary');
+            }
+        }
+
+        function extendTime() {
+            endTime = new Date(endTime.getTime() + 30 * 60 * 1000); // 30분 연장
+            document.getElementById('endTime').textContent = formatTime(endTime);
+            document.getElementById('extendButton').disabled = true;
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach((section) => {
+                section.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
+    </script>
+</head>
+<body>
+    <div id="home" class="section active">
+        <h1>옥센</h1>
+        <button onclick="showSection('login')">로그인</button>
+    </div>
+    <div id="login" class="section">
+        <h1>로그인</h1>
+        <form id="loginForm">
+            <label for="userid">교번:</label>
+            <input type="text" id="userid" name="userid" required><br>
+            <label for="password">비밀번호:</label>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">로그인</button>
+        </form>
+        <button onclick="showSection('register')">회원가입</button>
+    </div>
+    <div id="register" class="section">
+        <h1>회원가입</h1>
+        <form id="registerForm">
+            <label for="userid">교번:</label>
+            <input type="text" id="userid" name="userid" required><br>
+            <label for="class">기수:</label>
+            <input type="text" id="class" name="class" required><br>
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required><br>
+            <label for="password">비밀번호:</label>
+            <input type="password" id="password" name="password" required><br>
+            <button type="submit">회원가입</button>
+        </form>
+    </div>
+    <div id="checklist" class="section">
+        <h1>체크리스트</h1>
+        <form id="checklistForm">
+            <table>
+                <tr>
+                    <th>뒷정리여부</th>
+                    <th>예</th>
+                    <th>아니오</th>
+                    <th>파손</th>
+                </tr>
+                <tr>
+                    <td>원판</td>
+                    <td><input type="checkbox" name="plate" value="yes"></td>
+                    <td><input type="checkbox" name="plate" value="no"></td>
+                    <td><input type="checkbox" name="plate" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>바벨</td>
+                    <td><input type="checkbox" name="barbell" value="yes"></td>
+                    <td><input type="checkbox" name="barbell" value="no"></td>
+                    <td><input type="checkbox" name="barbell" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>벤치</td>
+                    <td><input type="checkbox" name="bench" value="yes"></td>
+                    <td><input type="checkbox" name="bench" value="no"></td>
+                    <td><input type="checkbox" name="bench" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>덤벨</td>
+                    <td><input type="checkbox" name="dumbbell" value="yes"></td>
+                    <td><input type="checkbox" name="dumbbell" value="no"></td>
+                    <td><input type="checkbox" name="dumbbell" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>싯업보드</td>
+                    <td><input type="checkbox" name="situpBoard" value="yes"></td>
+                    <td><input type="checkbox" name="situpBoard" value="no"></td>
+                    <td><input type="checkbox" name="situpBoard" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>비상문</td>
+                    <td><input type="checkbox" name="emergencyDoor" value="yes"></td>
+                    <td><input type="checkbox" name="emergencyDoor" value="no"></td>
+                    <td><input type="checkbox" name="emergencyDoor" value="broken"></td>
+                </tr>
+                <tr>
+                    <td>소등</td>
+                    <td><input type="checkbox" name="lightsOff" value="yes"></td>
+                    <td><input type="checkbox" name="lightsOff" value="no"></td>
+                    <td><input type="checkbox" name="lightsOff" value="broken"></td>
+                </tr>
+            </table>
+            <label for="comments">요구 및 불편사항:</label><br>
+            <textarea id="comments" name="comments" rows="4" cols="50"></textarea><br>
+            <button type="submit">제출</button>
+        </form>
+    </div>
+    <div id="timer" class="section">
+        <h1>운동 시간</h1>
+        <div id="timer">
+            <p>시작시간: <span id="startTime"></span></p>
+            <p>종료시간: <span id="endTime"></span></p>
+            <button id="extendButton" onclick="extendTime()">연장</button>
+        </div>
+    </div>
+    <div id="summary" class="section">
+        <h1>운동 종료</h1>
+        <p>사용이 종료되었습니다. 깔끔한 뒷정리 부탁드려요 :)</p>
+    </div>
+    <div id="admin" class="section">
+        <h1>관리자 페이지</h1>
+        <table id="adminTable">
+            <thead>
+                <tr>
+                    <th>교번</th>
+                    <th>뒷정리 여부</th>
+                    <th>요구 및 불편사항</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 사용자 정보가 여기에 동적으로 추가됩니다 -->
+            </tbody>
+        </table>
+    </div>
+    <div id="user" class="section">
+        <h1>사용자 페이지</h1>
+        <p>누적 경고: <span id="warnings"></span></p>
+        <p>벌금: <span id="fine"></span></p>
+        <p>밀린 벌금: <span id="overdueFine"></span></p>
+        <p>관리자 계좌번호: 123-4567-8910</p>
+    </div>
+</body>
+</html>
